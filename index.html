@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Архітектура обчислювальних систем | Портал</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        body {
+            /* Використовуємо строгий шрифт для основного тексту та моноширинний для технічних деталей */
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #0f172a; /* slate-900 */
+            color: #e2e8f0; /* slate-200 */
+        }
+
+        .tech-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Анімації для модального вікна */
+        .modal-enter {
+            opacity: 0;
+            transform: translateY(15px) scale(0.98);
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .modal-enter-active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        /* Стилізація скролбару для наукового стилю */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+
+        /* Стилізація автозаповнення браузера для темної теми (з форми) */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
+            -webkit-text-fill-color: #e2e8f0 !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        /* Кастомна іконка для випадаючого списку (з форми) */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+    </style>
+</head>
+<body class="min-h-screen relative antialiased selection:bg-blue-500/30">
+
+    <!-- Спільний фоновий патерн -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CgkJPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPgoJPC9zdmc+')] opacity-50"></div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ВИГЛЯД 1: КАТАЛОГ ДОВІДНИКА -->
+    <!-- ========================================== -->
+    <div id="catalog-view" class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-24 block">
+        <header class="mb-14 border-b border-slate-800 pb-8 flex flex-col md:flex-row justify-between items-start gap-6">
+            <div>
+                <div class="inline-block px-3 py-1 mb-4 rounded-full bg-slate-800/50 border border-slate-700 text-xs font-semibold tracking-wider text-slate-400 uppercase">
+                    Навчальний посібник
+                </div>
+                <h1 class="text-3xl md:text-5xl font-bold tracking-tight mb-4 text-slate-100">
+                    Архітектура Обчислювальних Систем
+                </h1>
+                <p class="text-slate-400 text-lg max-w-3xl leading-relaxed">
+                    Академічний довідник з апаратної інженерії. Дослідження базових компонентів архітектури фон Неймана, принципів їхньої взаємодії, фізичних основ та мікроархітектурних рішень.
+                </p>
+            </div>
+            
+            <!-- Кнопка переходу до реєстрації -->
+            <button id="btn-open-register" class="shrink-0 bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 px-5 rounded-lg transition-colors flex items-center gap-2 text-sm shadow-lg shadow-blue-900/20 border border-blue-500">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                Вхід / Реєстрація
+            </button>
+        </header>
+
+        <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Картки генеруються через JS -->
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ВИГЛЯД 2: ФОРМА РЕЄСТРАЦІЇ -->
+    <!-- ========================================== -->
+    <div id="register-view" class="relative z-10 hidden min-h-screen flex items-center justify-center p-4">
+        
+        <!-- Кнопка повернення на головну -->
+        <a href="#" class="btn-back-catalog absolute top-6 left-6 z-20 text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-2 text-sm font-medium group">
+            <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Повернутися до довідника
+        </a>
+
+        <main class="w-full max-w-md">
+            <div class="bg-slate-800/60 border border-slate-700/50 backdrop-blur-md rounded-xl shadow-2xl overflow-hidden p-8">
+
+                <!-- Заголовок форми -->
+                <div class="mb-8 text-center border-b border-slate-700 pb-6">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-slate-900 border border-slate-700 mb-4 shadow-inner">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold text-slate-100 tracking-tight">Авторизація</h1>
+                    <p class="text-slate-400 text-sm mt-2">Доступ до навчального порталу</p>
+                </div>
+
+                <!-- Блок для виведення помилок -->
+                <div id="error-box" class="hidden mb-6 p-4 rounded-lg bg-red-950/50 border border-red-900/50 text-red-400 text-sm flex items-start gap-3">
+                    <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span id="error-message" class="leading-relaxed">Помилка валідації.</span>
+                </div>
+
+                <form id="registration-form" class="space-y-5" novalidate>
+                    <!-- Поле: Ім'я -->
+                    <div>
+                        <label for="fullName" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Повне ім'я (ПІБ)</label>
+                        <input type="text" id="fullName" name="fullName" required
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all"
+                            placeholder="Шевченко Тарас Григорович">
+                    </div>
+
+                    <!-- Поле: Email -->
+                    <div>
+                        <label for="email" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Електронна пошта</label>
+                        <input type="email" id="email" name="email" required
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all tech-font text-sm"
+                            placeholder="student@university.edu.ua">
+                    </div>
+
+                    <!-- Поле: Роль (Випадаючий список) -->
+                    <div>
+                        <label for="role" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Рівень доступу (Роль)</label>
+                        <select id="role" name="role" required
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all cursor-pointer">
+                            <option value="" disabled selected class="text-slate-500">Оберіть роль у системі...</option>
+                            <option value="student">Студент</option>
+                            <option value="teacher">Викладач</option>
+                            <option value="researcher">Дослідник (Науковий співробітник)</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
+                        <!-- Поле: Пароль -->
+                        <div>
+                            <label for="password" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Ключ доступу</label>
+                            <input type="password" id="password" name="password" required
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all tech-font"
+                                placeholder="••••••••">
+                        </div>
+
+                        <!-- Поле: Підтвердження пароля -->
+                        <div>
+                            <label for="confirmPassword" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Підтвердження</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all tech-font"
+                                placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <!-- Кнопка відправки -->
+                    <div class="pt-6">
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 px-4 rounded-lg transition-colors focus:ring-4 focus:ring-blue-500/30 outline-none flex justify-center items-center gap-2">
+                            <span>Ініціалізувати запис</span>
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Блок успішної реєстрації (прихований за замовчуванням) -->
+                <div id="success-state" class="hidden text-center py-8">
+                    <div class="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-4 border border-emerald-500/30">
+                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-200 mb-2">Обліковий запис створено</h3>
+                    <p class="text-slate-400 text-sm">Ваші дані успішно занесені до реєстру. Очікуйте підтвердження адміністратором системи.</p>
+
+                    <!-- Кнопка повернення після успішної реєстрації -->
+                    <a href="#" class="btn-back-catalog mt-6 inline-block w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                        Перейти до довідника
+                    </a>
+                </div>
+            </div>
+            
+            <p class="text-center text-slate-600 text-xs mt-6 tech-font">
+                PORTAL.SYS.VER // 2026.01.04
+            </p>
+        </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- МОДАЛЬНЕ ВІКНО КАТАЛОГУ (Спільне) -->
+    <!-- ========================================== -->
+    <div id="modal-backdrop" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-200">
+        <div id="modal-content" class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col modal-enter relative overflow-hidden">
+            
+            <button id="close-btn" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors bg-slate-800 p-2 rounded-lg z-10 border border-slate-700 hover:bg-slate-700" aria-label="Закрити">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <div class="px-8 py-6 border-b border-slate-800 bg-slate-900/50">
+                <div class="flex items-center gap-4">
+                    <div id="modal-icon-container" class="w-14 h-14 rounded-lg flex items-center justify-center border border-slate-700 bg-slate-800 shadow-inner">
+                        <!-- Icon -->
+                    </div>
+                    <div>
+                        <h2 id="modal-title" class="text-2xl font-bold text-slate-100">Заголовок</h2>
+                        <p id="modal-eng-title" class="text-sm font-medium text-slate-400 tech-font mt-1">Eng Title</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-8 overflow-y-auto flex-1 custom-scrollbar">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+                            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <h3 class="text-lg font-semibold text-slate-200 uppercase tracking-wide text-sm">Призначення (Що це)</h3>
+                        </div>
+                        <p id="modal-what" class="text-slate-300 leading-relaxed text-sm md:text-base text-justify"></p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+                            <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                            <h3 class="text-lg font-semibold text-slate-200 uppercase tracking-wide text-sm">Принцип роботи (Як працює)</h3>
+                        </div>
+                        <p id="modal-how" class="text-slate-300 leading-relaxed text-sm md:text-base text-justify"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- СКРИПТИ -->
+    <!-- ========================================== -->
+    <script>
+        // --- ЛОГІКА ПЕРЕМИКАННЯ СТОРІНОК ---
+        const catalogView = document.getElementById('catalog-view');
+        const registerView = document.getElementById('register-view');
+
+        // Відкрити форму реєстрації
+        document.getElementById('btn-open-register').addEventListener('click', () => {
+            catalogView.classList.add('hidden');
+            catalogView.classList.remove('block');
+            
+            registerView.classList.remove('hidden');
+            registerView.classList.add('flex');
+            window.scrollTo(0, 0); // Повернення на початок сторінки
+        });
+
+        // Повернутися до довідника
+        document.querySelectorAll('.btn-back-catalog').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                registerView.classList.add('hidden');
+                registerView.classList.remove('flex');
+                
+                catalogView.classList.remove('hidden');
+                catalogView.classList.add('block');
+                window.scrollTo(0, 0);
+            });
+        });
+
+        // --- ДАНІ ТА ЛОГІКА КАТАЛОГУ ---
+        const architectureData = [
+            {
+                id: 'cpu',
+                title: 'Центральний процесор',
+                engTitle: 'Central Processing Unit (CPU)',
+                icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>`,
+                what: `Головний обчислювальний пристрій електронно-обчислювальної машини, що являє собою надвелику інтегральну схему (НВІС). Він є "мозком" системи, що інтерпретує та виконує машинні інструкції, які складають комп'ютерні програми, керуючи взаємодією всіх інших підсистем архітектури.`,
+                how: `Працює за циклом фон Неймана: Вибірка (Fetch), Декодування (Decode), Виконання (Execute). Містить Арифметико-логічний пристрій (ALU) для математичних і логічних операцій, блок керування (Control Unit) та набір надшвидкої пам'яті — регістрів і кешу (L1, L2, L3). Сучасні процесори використовують суперскалярну архітектуру, конвеєризацію (pipelining) та передбачення розгалужень (branch prediction).`
+            },
+            {
+                id: 'gpu',
+                title: 'Графічний процесор',
+                engTitle: 'Graphics Processing Unit (GPU)',
+                icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M6 8h.01"></path><path d="M10 8h.01"></path><path d="M14 8h.01"></path><path d="M18 8h.01"></path><rect x="6" y="12" width="12" height="4" rx="1"></rect></svg>`,
+                what: `Спеціалізований співпроцесор, архітектура якого оптимізована для високопаралельної обробки великих масивів даних. Спочатку розроблений для рендерингу комп'ютерної графіки, сьогодні масово застосовується для наукових розрахунків (GPGPU) та навчання нейромереж.`,
+                how: `Використовує архітектуру SIMD (Single Instruction, Multiple Data). На відміну від CPU, що має кілька потужних ядер, GPU містить тисячі простіших ALU, згрупованих у потокові мультипроцесори. Оперує власною високошвидкісною відеопам'яттю (VRAM) з надзвичайно широкою шиною даних.`
+            },
+            {
+                id: 'ram',
+                title: 'Оперативна пам\'ять',
+                engTitle: 'Random Access Memory (RAM)',
+                icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"></rect><path d="M6 7v10"></path><path d="M10 7v10"></path><path d="M14 7v10"></path><path d="M18 7v10"></path><path d="M4 17v2"></path><path d="M8 17v2"></path><path d="M12 17v2"></path><path d="M16 17v2"></path><path d="M20 17v2"></path></svg>`,
+                what: `Енергозалежна (Volatile) пам'ять з довільним доступом, що виступає в ролі робочого простору процесора. Тут тимчасово зберігається виконуваний машинний код поточних програм, а також вхідні, вихідні та проміжні дані обчислень.`,
+                how: `Сучасні ПК використовують DRAM (Dynamic RAM). Кожен біт інформації зберігається у комірці, що складається з транзистора та мікроконденсатора. Оскільки конденсатор втрачає заряд, контролер пам'яті періодично зчитує і перезаписує дані (регенерація).`
+            },
+            {
+                id: 'ssd',
+                title: 'Твердотільний накопичувач',
+                engTitle: 'Solid-State Drive (SSD)',
+                icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"></rect><path d="M10 2v4"></path><path d="M14 2v4"></path><path d="M6 10h12"></path><path d="M6 14h12"></path><path d="M6 18h12"></path><path d="M10 22v-4"></path><path d="M14 22v-4"></path></svg>`,
+                what: `Енергонезалежний (Non-Volatile) пристрій довготривалого зберігання інформації, що не має рухомих механічних частин. Забезпечує на порядки вищу швидкість читання та запису (IOPs) порівняно з HDD.`,
+                how: `Базується на NAND флеш-пам'яті, що використовує транзистори з плаваючим затвором, здатні утримувати заряд роками. Інтегрований контролер керує даними і застосовує алгоритми вирівнювання зносу. Найсучасніші SSD використовують протокол NVMe.`
+            },
+            {
+                id: 'motherboard',
+                title: 'Системна (материнська) плата',
+                engTitle: 'Motherboard / Mainboard',
+                icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>`,
+                what: `Складна багатошарова друкована плата, яка слугує фізичним та логічним фундаментом обчислювальної системи. Об'єднує всі компоненти, надаючи їм канали зв'язку та розподіляючи електричне живлення.`,
+                how: `Керується чипсетом. Містить VRM для живлення процесора. Маршрутизація даних відбувається через інтерфейси PCIe, SATA, USB. Також плата містить UEFI/BIOS для первинної ініціалізації системи під час POST.`
+            },
+            {
+                id: 'psu',
+                title: 'Блок живлення',
+                engTitle: 'Power Supply Unit (PSU)',
+                icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><circle cx="12" cy="12" r="4"></circle><line x1="12" y1="2" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="22"></line><line x1="20" y1="12" x2="22" y2="12"></line><line x1="2" y1="12" x2="4" y2="12"></line></svg>`,
+                what: `Електромеханічний пристрій, що виконує роль перетворювача електричної енергії. Перетворює змінний струм (AC) електромережі у стабілізований постійний струм (DC) низької напруги.`,
+                how: `Сучасні блоки живлення є імпульсними (SMPS). Напруга випрямляється, ключові транзистори створюють високочастотні імпульси, далі йде трансформатор. Мікросхема ШІМ динамічно коригує ширину імпульсів для стабілізації вольтажу.`
+            }
+        ];
+
+        const grid = document.getElementById('catalog-grid');
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const modalContent = document.getElementById('modal-content');
+        
+        architectureData.forEach(item => {
+            const card = document.createElement('div');
+            card.className = "group relative bg-slate-800/40 border border-slate-700/50 rounded-lg p-6 hover:bg-slate-800 hover:border-slate-600 transition-all duration-200 cursor-pointer flex flex-col";
+            card.onclick = () => openModal(item.id);
+            
+            card.innerHTML = `
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded bg-slate-900 border border-slate-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+                        ${item.icon}
+                    </div>
+                    <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-slate-200 mb-1 group-hover:text-blue-400 transition-colors">
+                    ${item.title}
+                </h3>
+                <p class="text-xs text-slate-500 tech-font uppercase tracking-wide mb-4">
+                    ${item.engTitle}
+                </p>
+                <div class="mt-auto">
+                    <p class="text-sm text-slate-400 line-clamp-3">
+                        ${item.what}
+                    </p>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        function openModal(id) {
+            const data = architectureData.find(d => d.id === id);
+            if (!data) return;
+
+            document.getElementById('modal-title').textContent = data.title;
+            document.getElementById('modal-eng-title').textContent = data.engTitle;
+            document.getElementById('modal-what').innerHTML = data.what;
+            document.getElementById('modal-how').innerHTML = data.how;
+            document.getElementById('modal-icon-container').innerHTML = data.icon;
+
+            modalBackdrop.classList.remove('hidden');
+            modalBackdrop.classList.add('flex');
+            
+            void modalBackdrop.offsetWidth;
+            
+            modalBackdrop.classList.remove('opacity-0');
+            modalContent.classList.add('modal-enter-active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modalBackdrop.classList.add('opacity-0');
+            modalContent.classList.remove('modal-enter-active');
+            
+            setTimeout(() => {
+                modalBackdrop.classList.add('hidden');
+                modalBackdrop.classList.remove('flex');
+                document.body.style.overflow = '';
+            }, 200);
+        }
+
+        document.getElementById('close-btn').addEventListener('click', closeModal);
+        modalBackdrop.addEventListener('click', (e) => {
+            if (e.target === modalBackdrop) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modalBackdrop.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+
+        // --- ЛОГІКА ФОРМИ РЕЄСТРАЦІЇ ---
+        const form = document.getElementById('registration-form');
+        const errorBox = document.getElementById('error-box');
+        const errorMessage = document.getElementById('error-message');
+        const successState = document.getElementById('success-state');
+
+        const showError = (message) => {
+            errorMessage.textContent = message;
+            errorBox.classList.remove('hidden');
+            form.classList.add('animate-pulse');
+            setTimeout(() => form.classList.remove('animate-pulse'), 300);
+        };
+
+        const hideError = () => {
+            errorBox.classList.add('hidden');
+            errorMessage.textContent = '';
+        };
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            hideError();
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const role = document.getElementById('role').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!fullName || !email || !role || !password || !confirmPassword) {
+                showError('Усі поля є обов\'язковими для заповнення. Будь ласка, перевірте дані.');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('Некоректний формат електронної пошти. Використовуйте стандартний формат.');
+                return;
+            }
+
+            if (password.length < 8) {
+                showError('Ключ доступу занадто короткий. Мінімальна довжина — 8 символів.');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError('Ключі доступу (паролі) не співпадають. Введіть їх повторно.');
+                return;
+            }
+
+            // Успішна валідація
+            form.classList.add('hidden');
+            successState.classList.remove('hidden');
+            console.log('Дані готові до відправки:', { fullName, email, role });
+        });
+    </script>
+</body>
+</html>
