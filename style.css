@@ -65,11 +65,18 @@ a:hover {
 
 /* Головний контейнер */
 .container {
-  max-width: 750px;
+  max-width: 1000px; /* Трохи збільшили, щоб карткам не було тісно */
   width: 100%;
-  margin: 30px auto;
-  padding: 0 15px;
+  margin: 40px auto;
+  padding: 0 20px;
   flex: 1;
+  box-sizing: border-box;
+  
+  /* Робимо сітку для карток */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 24px;
+  align-items: start;
 }
 
 /* Картки контенту */
@@ -124,13 +131,20 @@ a:hover {
   color: var(--text);
 }
 
-/* Карта */
-.map-container iframe {
-  width: 100%;
-  height: 250px;
-  border: none;
-  border-radius: 8px;
-  margin-top: 15px;
+/* Картки */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 0; /* Прибрали, бо тепер відступи контролює gap у контейнері */
+  box-shadow: 0 3px 6px rgba(140, 149, 159, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 24px rgba(140, 149, 159, 0.15);
+  transform: translateY(-2px);
 }
 
 /* Підвал */
