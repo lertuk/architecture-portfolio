@@ -6,6 +6,7 @@
   --text: #c9d1d9;
   --text-muted: #8b949e;
   --accent: #58a6ff;
+  --radius: 8px; /* Додав змінну для радіусу, оскільки вона використовувалась нижче */
 }
 
 /* Загальні налаштування сторінки */
@@ -32,7 +33,8 @@ a:hover {
 /* Навігація (Шапка) */
 .navbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start; /* Змінено з space-between на flex-start (все зліва) */
+  gap: 40px; /* Додано відступ між логотипом та навігацією */
   align-items: center;
   padding: 15px 20px;
   background-color: var(--card-bg);
@@ -65,14 +67,14 @@ a:hover {
 
 /* Головний контейнер */
 .container {
-  max-width: 1000px; /* Трохи збільшили, щоб карткам не було тісно */
+  max-width: 1000px;
   width: 100%;
-  margin: 40px auto;
+  margin: 40px 0; /* Змінено з 40px auto (прибрали автоматичне центрування) */
   padding: 0 20px;
   flex: 1;
   box-sizing: border-box;
   
-  /* Робимо сітку для карток */
+  /* Сітка для карток */
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 24px;
@@ -83,9 +85,15 @@ a:hover {
 .card {
   background-color: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 0 3px 6px rgba(140, 149, 159, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 24px rgba(140, 149, 159, 0.15);
+  transform: translateY(-2px);
 }
 
 .card h2 {
@@ -131,25 +139,20 @@ a:hover {
   color: var(--text);
 }
 
-/* Картки */
-.card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  margin-bottom: 0; /* Прибрали, бо тепер відступи контролює gap у контейнері */
-  box-shadow: 0 3px 6px rgba(140, 149, 159, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.map-container {
+  margin-top: 20px;
 }
 
-.card:hover {
-  box-shadow: 0 8px 24px rgba(140, 149, 159, 0.15);
-  transform: translateY(-2px);
+.map-container iframe {
+  width: 100%;
+  height: 250px;
+  border: none;
+  border-radius: var(--radius);
 }
 
 /* Підвал */
 footer {
-  text-align: center;
+  text-align: left; /* Змінено з center на left */
   padding: 20px;
   color: var(--text-muted);
   border-top: 1px solid var(--border);
@@ -160,10 +163,11 @@ footer {
 @media (max-width: 600px) {
   .navbar {
     flex-direction: column;
+    align-items: flex-start; /* Вирівнюємо шапку на телефонах теж зліва */
     gap: 15px;
   }
   .nav-links {
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
   }
 }
